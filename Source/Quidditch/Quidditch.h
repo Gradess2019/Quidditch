@@ -4,3 +4,19 @@
 
 #include "CoreMinimal.h"
 
+UENUM(BlueprintType)
+enum class ETeamSide : uint8
+{
+	None,
+	Blue,
+	Red
+};
+
+UENUM(BlueprintType)
+enum class ERoleInTeam : uint8
+{
+	Chaser,
+	Beater,
+	Seeker,
+	Keeper
+};
