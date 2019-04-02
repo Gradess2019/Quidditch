@@ -7,12 +7,13 @@
 #include "Target.h"
 #include "Hittable.h"
 #include "GoalMaker.h"
+#include "ControlledCharacter.h"
 #include "Quidditch.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "BaseCharacter.generated.h"
 
 UCLASS(Abstract)
-class QUIDDITCH_API ABaseCharacter : public ACharacter, public ITarget, public IHittable, public IGoalMaker
+class QUIDDITCH_API ABaseCharacter : public ACharacter, public ITarget, public IHittable, public IGoalMaker, public IControlledCharacter
 {
 	GENERATED_BODY()
 
@@ -26,9 +27,11 @@ public:
 	//IHittable interface
 	virtual void AddDamage(FVector impulse) override;
 
-
 	//IGoalMaker interface
 	virtual ETeamSide GetTeam() override;
+
+	//IControlledCharacter interface
+	virtual float GetSpeed() override;
 
 protected:
 

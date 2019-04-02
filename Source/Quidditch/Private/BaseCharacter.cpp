@@ -55,3 +55,8 @@ ETeamSide ABaseCharacter::GetTeam()
 {
 	return team;
 }
+
+float ABaseCharacter::GetSpeed()
+{
+	return speed;
+}
