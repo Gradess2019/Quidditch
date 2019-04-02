@@ -20,3 +20,10 @@ enum class ERoleInTeam : uint8
 	Seeker,
 	Keeper
 };
+
+UENUM(BlueprintType)
+enum class EHand : uint8
+{
+	Right,
+	Left
+};
