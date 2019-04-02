@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Target.h"
 #include "Hittable.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "BaseCharacter.generated.h"
 
 UCLASS(Abstract)
@@ -18,7 +19,7 @@ public:
 
 	//ITarget interface
 	virtual bool CanBeAttacked() override;
-	virtual void GetLocation() override;
+	virtual FVector GetLocation() override;
 
 	//IHittable interface
 	virtual void AddDamage(FVector impulse) override;
@@ -28,9 +29,17 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Character settings")
 	float speed;
 
+	UCharacterMovementComponent* movementComponent;
+
 	//Uncomment it when ETeamSide enum will exists
 	//TEnumAsByte<ETeamSide> team;
 
 	//Uncomment it when ETeamSide enum will exists
 	//TEnumAsByte<ERoleInTeam> role;
+
+	virtual void BeginPlay() override;
+
+private:
+
+	void FindMovementComponent();
 };
