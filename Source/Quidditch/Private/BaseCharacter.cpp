@@ -25,7 +25,18 @@ void ABaseCharacter::FindMovementComponent()
 
 bool ABaseCharacter::CanBeAttacked() 
 {
-	return true;
+	switch (roleInTeam)
+	{
+		case ERoleInTeam::Keeper:
+		{
+			return false;
+		}
+
+		default:
+		{
+			return true;
+		}
+	}
 }
 
 FVector ABaseCharacter::GetLocation()
@@ -38,4 +49,9 @@ void ABaseCharacter::AddDamage(FVector impulse)
 	const FVector resultImpulse = impulse / movementComponent->Mass;
 	const bool changeVelocity = true;
 	movementComponent->AddImpulse(resultImpulse, changeVelocity);
+}
+
+ETeamSide ABaseCharacter::GetTeam()
+{
+	return team;
 }

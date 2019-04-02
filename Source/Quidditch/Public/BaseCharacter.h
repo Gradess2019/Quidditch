@@ -6,11 +6,13 @@
 #include "GameFramework/Character.h"
 #include "Target.h"
 #include "Hittable.h"
+#include "GoalMaker.h"
+#include "Quidditch.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "BaseCharacter.generated.h"
 
 UCLASS(Abstract)
-class QUIDDITCH_API ABaseCharacter : public ACharacter, public ITarget, public IHittable
+class QUIDDITCH_API ABaseCharacter : public ACharacter, public ITarget, public IHittable, public IGoalMaker
 {
 	GENERATED_BODY()
 
@@ -24,18 +26,22 @@ public:
 	//IHittable interface
 	virtual void AddDamage(FVector impulse) override;
 
+
+	//IGoalMaker interface
+	virtual ETeamSide GetTeam() override;
+
 protected:
 
 	UPROPERTY(EditAnywhere, Category = "Character settings")
 	float speed;
 
 	UCharacterMovementComponent* movementComponent;
+	
+	UPROPERTY(EditAnywhere, Category = "Character settings")
+	ETeamSide team;
 
-	//Uncomment it when ETeamSide enum will exists
-	//TEnumAsByte<ETeamSide> team;
-
-	//Uncomment it when ETeamSide enum will exists
-	//TEnumAsByte<ERoleInTeam> role;
+	UPROPERTY(EditAnywhere, Category = "Character settings")
+	ERoleInTeam roleInTeam;
 
 	virtual void BeginPlay() override;
 
