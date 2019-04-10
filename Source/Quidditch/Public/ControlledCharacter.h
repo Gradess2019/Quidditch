@@ -15,7 +15,7 @@ class UControlledCharacter : public UInterface
 };
 
 /**
- * 
+ * Interface of an object that is a Character
  */
 class QUIDDITCH_API IControlledCharacter
 {
@@ -24,4 +24,6 @@ class QUIDDITCH_API IControlledCharacter
 public:
 
 	virtual float GetSpeed() = 0;
+	virtual FVector GetDirection() = 0;
+	virtual void AddInput(const FVector DIRECTION, const float VALUE) = 0;
 };

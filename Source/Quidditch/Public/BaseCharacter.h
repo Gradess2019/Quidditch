@@ -18,6 +18,7 @@ class QUIDDITCH_API ABaseCharacter : public ACharacter, public ITarget, public I
 	GENERATED_BODY()
 
 public:
+
 	ABaseCharacter();
 
 	//ITarget interface
@@ -31,12 +32,14 @@ public:
 	virtual ETeamSide GetTeam() override;
 
 	//IControlledCharacter interface
-	virtual float GetSpeed() override;
+	float GetSpeed() override;
+	FVector GetDirection() override;
+	void AddInput(const FVector DIRECTION, const float VALUE) override;
 
 protected:
 
-	UPROPERTY(EditAnywhere, Category = "Character settings")
-	float speed;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character settings")
+	float maxSpeed;
 
 	UCharacterMovementComponent* movementComponent;
 	
@@ -51,4 +54,5 @@ protected:
 private:
 
 	void FindMovementComponent();
+	void InitFlyingSpeed();
 };
