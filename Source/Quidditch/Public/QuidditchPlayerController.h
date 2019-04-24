@@ -7,6 +7,7 @@
 #include "ControlledCharacter.h"
 #include "BaseController.h"
 #include "MotionControllerComponent.h"
+#include "AttachableObject.h"
 #include "QuidditchPlayerController.generated.h"
 
 /**
@@ -29,8 +30,10 @@ private:
 
 	IControlledCharacter* player;
 
-	UActorComponent* leftHand;
-	UActorComponent* rightHand;
+	UPrimitiveComponent* leftHand;
+	UPrimitiveComponent* rightHand;
+
+	IAttachableObject* attachableObject;
 
 	void BeginPlay() override;
 	void Tick(float DeltaSeconds) override;
@@ -42,15 +45,18 @@ private:
 
 	TArray<UActorComponent*> GetAllMotionControllers();
 
-	bool CanAssignToLeftHand(UActorComponent* currentComponent);
-	bool CanAssignToRightHand(UActorComponent* currentComponent);
-	bool CanAssignToHand(UActorComponent* currentComponent, UActorComponent* hand, FName handTag);
+	bool CanAssignToLeftHand(UPrimitiveComponent* currentComponent);
+	bool CanAssignToRightHand(UPrimitiveComponent* currentComponent);
+	bool CanAssignToHand(UPrimitiveComponent* currentComponent, UActorComponent* hand, FName handTag);
 
 	UFUNCTION()
 	void UpdateRotation(const float DELTA_SECONDS);
 
 	void SetupInputComponent() override;
 	void Grab() override;
+	void Ungrab() override;
+
+	void GetOverlappedActor();
 	
 	UFUNCTION()
 	void MoveForward(float value);

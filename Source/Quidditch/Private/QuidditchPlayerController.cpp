@@ -2,6 +2,8 @@
 
 #include "QuidditchPlayerController.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "AttachableObject.h"
+#include "Engine/Engine.h"
 
 void AQuidditchPlayerController::BeginPlay()
 {
@@ -20,15 +22,19 @@ void AQuidditchPlayerController::InitMotionControllers()
 	if (HasAnyMotionController())
 	{
 		TArray<UActorComponent*> playerComponents = GetAllMotionControllers();
-		for (UActorComponent* currentComponent : playerComponents)
+		for (UActorComponent* component : playerComponents)
 		{
-			if (CanAssignToLeftHand(currentComponent))
+			UPrimitiveComponent* currentComponent = Cast<UPrimitiveComponent>(component);
+			if (currentComponent)
 			{
-				leftHand = currentComponent;
-			}
-			else if (CanAssignToRightHand(currentComponent))
-			{
-				rightHand = currentComponent;
+				if (CanAssignToLeftHand(currentComponent))
+				{
+					leftHand = currentComponent;
+				}
+				else if (CanAssignToRightHand(currentComponent))
+				{
+					rightHand = currentComponent;
+				}
 			}
 		}
 	}
@@ -44,17 +50,17 @@ TArray<UActorComponent*> AQuidditchPlayerController::GetAllMotionControllers()
 	return GetPawn()->GetComponentsByClass(UMotionControllerComponent::StaticClass());
 }
 
-bool AQuidditchPlayerController::CanAssignToLeftHand(UActorComponent* currentComponent)
+bool AQuidditchPlayerController::CanAssignToLeftHand(UPrimitiveComponent* currentComponent)
 {
 	return CanAssignToHand(currentComponent, leftHand, leftHandTag);
 }
 
-bool AQuidditchPlayerController::CanAssignToHand(UActorComponent* currentComponent, UActorComponent* hand, FName handTag)
+bool AQuidditchPlayerController::CanAssignToHand(UPrimitiveComponent* currentComponent, UActorComponent* hand, FName handTag)
 {
 	return hand == nullptr && currentComponent->ComponentHasTag(handTag);
 }
 
-bool AQuidditchPlayerController::CanAssignToRightHand(UActorComponent* currentComponent)
+bool AQuidditchPlayerController::CanAssignToRightHand(UPrimitiveComponent* currentComponent)
 {
 	return CanAssignToHand(currentComponent, rightHand, rightHandTag);
 }
@@ -79,6 +85,8 @@ void AQuidditchPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 	InputComponent->BindAxis("MoveForward", this, &AQuidditchPlayerController::MoveForward);
+	InputComponent->BindAction("Grab", EInputEvent::IE_Pressed, this, &AQuidditchPlayerController::Grab);
+	InputComponent->BindAction("Grab", EInputEvent::IE_Released, this, &AQuidditchPlayerController::Ungrab);
 }
 
 void AQuidditchPlayerController::MoveForward(float value)
@@ -92,5 +100,38 @@ void AQuidditchPlayerController::MoveForward(float value)
 
 void AQuidditchPlayerController::Grab()
 {
+	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("TRY TO GRAB"));
+	GetOverlappedActor();
+	if (attachableObject)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("ATTACH"));
+		attachableObject->Attach(rightHand);
+	}
 
 }
+
+void AQuidditchPlayerController::Ungrab()
+{
+	if (attachableObject)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Green, TEXT("DETACH"));
+		attachableObject->Detach();
+	}
+}
+
+void AQuidditchPlayerController::GetOverlappedActor()
+{
+	TArray<AActor*> overlappedActors;
+	rightHand->GetOverlappingActors(overlappedActors);
+
+	for (AActor* actor : overlappedActors)
+	{
+		IAttachableObject* attachableObject = Cast<IAttachableObject>(actor);
+		if (attachableObject)
+		{
+			this->attachableObject = attachableObject;
+			break;
+		}
+	}
+}
+

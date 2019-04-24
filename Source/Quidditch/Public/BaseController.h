@@ -23,4 +23,5 @@ class QUIDDITCH_API IBaseController
 public:
 
 	virtual void Grab() = 0;
+	virtual void Ungrab() = 0;
 };
