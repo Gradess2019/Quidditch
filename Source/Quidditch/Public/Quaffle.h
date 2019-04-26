@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Ball.h"
 #include "AttachableObject.h"
+#include "Components/PrimitiveComponent.h"
 #include "Goal.h"
 #include "Quaffle.generated.h"
 
@@ -34,11 +35,17 @@ protected:
 
 	FVector lastDeltaLocation;
 
+	FTimerHandle continueMovementTimer;
+
 	void Move() override;
 	
 	FVector GetNewVelocity();
 
 	bool CorrectDirection(FVector& velocity);
 
-	void SetVelocity(const FVector& velocity);
+	void SetVelocity(const FVector& velocity) const;
+
+private:
+
+	void ContinueMovement() const;
 };

@@ -34,7 +34,7 @@ protected:
 	UPROPERTY(EditInstanceOnly, Category = "Flight zone settings")
 	AActor* flightZone;
 
-	FTimerHandle moveUpdateTimer;
+	FTimerHandle movementUpdateTimer;
 
 	UPrimitiveComponent* physicalComponent;
 

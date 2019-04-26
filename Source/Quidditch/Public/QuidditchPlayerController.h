@@ -26,6 +26,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Controller settings")
 	FName rightHandTag;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Controller settings")
+	FName rightHandTriggerTag;
+
 	FTimerHandle updateTimer;
 
 	IControlledCharacter* player;
@@ -37,17 +40,18 @@ private:
 
 	void BeginPlay() override;
 	void Tick(float DeltaSeconds) override;
+	FRotator GetLeftHandRotation() const;
 
 	void InitControlledPlayer();
 	void InitMotionControllers();
 
-	bool HasAnyMotionController();
+	bool HasAnyMotionController() const;
 
-	TArray<UActorComponent*> GetAllMotionControllers();
+	TArray<UActorComponent*> GetAllMotionControllers() const;
 
-	bool CanAssignToLeftHand(UPrimitiveComponent* currentComponent);
-	bool CanAssignToRightHand(UPrimitiveComponent* currentComponent);
-	bool CanAssignToHand(UPrimitiveComponent* currentComponent, UActorComponent* hand, FName handTag);
+	bool CanAssignToLeftHand(UPrimitiveComponent* currentComponent) const;
+	bool CanAssignToRightHand(UPrimitiveComponent* currentComponent) const;
+	bool CanAssignToHand(UPrimitiveComponent* currentComponent, UActorComponent* hand, FName handTag) const;
 
 	UFUNCTION()
 	void UpdateRotation(const float DELTA_SECONDS);
@@ -57,6 +61,8 @@ private:
 	void Ungrab() override;
 
 	void GetOverlappedActor();
+	UPrimitiveComponent* GetRightHandTrigger() const;
+	
 	
 	UFUNCTION()
 	void MoveForward(float value);

@@ -3,7 +3,9 @@
 #include "Quaffle.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "Engine/World.h"
 #include "QuidditchHelper.h"
+#include "TimerManager.h"
 
 FVector GetFlightZoneOrigin(AActor* flightZone);
 FVector GetFlightZoneExtent(AActor* flightZone);
@@ -18,13 +20,14 @@ void AQuaffle::Move()
 FVector AQuaffle::GetNewVelocity()
 {
 	const FVector currentVelocity = this->GetVelocity();
+
 	if (currentVelocity.IsZero())
 	{
 		return UQuidditchHelper::GetRandomVelocity(maxSpeed);
 	}
 	else
 	{
-		const float INTERP_SPEED = 3500.f;
+		const float INTERP_SPEED = 500.f;
 		return UQuidditchHelper::InterpolateToTargetVelocity(this, maxSpeed, INTERP_SPEED);
 	}
 }
@@ -83,19 +86,28 @@ FVector GetFlightZoneExtent(AActor* flightZone)
 	return flightZoneExtent;
 }
 
-void AQuaffle::SetVelocity(const FVector& velocity)
+void AQuaffle::SetVelocity(const FVector& velocity) const
 {
 	physicalComponent->SetPhysicsLinearVelocity(velocity);
 }
 
 void AQuaffle::Attach(USceneComponent* parentComponent)
 {
+	GetWorld()->GetTimerManager().PauseTimer(movementUpdateTimer);
+	physicalComponent->SetSimulatePhysics(false);
 	AttachToComponent(parentComponent, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 }
 
 void AQuaffle::Detach()
 {
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	physicalComponent->SetSimulatePhysics(true);
+	GetWorld()->GetTimerManager().SetTimer(continueMovementTimer, this, &AQuaffle::ContinueMovement, 5.f, false);
+}
+
+void AQuaffle::ContinueMovement() const
+{
+	GetWorld()->GetTimerManager().UnPauseTimer(movementUpdateTimer);
 }
 
 int AQuaffle::GetPoints()

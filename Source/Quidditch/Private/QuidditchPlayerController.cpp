@@ -3,6 +3,7 @@
 #include "QuidditchPlayerController.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "AttachableObject.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Engine/Engine.h"
 
 void AQuidditchPlayerController::BeginPlay()
@@ -40,27 +41,27 @@ void AQuidditchPlayerController::InitMotionControllers()
 	}
 }
 
-bool AQuidditchPlayerController::HasAnyMotionController()
+bool AQuidditchPlayerController::HasAnyMotionController() const
 {
 	return ensureMsgf(!(leftHandTag.IsNone() && rightHandTag.IsNone()), TEXT("Could not find any motion controller component in player"));
 }
 
-TArray<UActorComponent*> AQuidditchPlayerController::GetAllMotionControllers()
+TArray<UActorComponent*> AQuidditchPlayerController::GetAllMotionControllers() const
 {
 	return GetPawn()->GetComponentsByClass(UMotionControllerComponent::StaticClass());
 }
 
-bool AQuidditchPlayerController::CanAssignToLeftHand(UPrimitiveComponent* currentComponent)
+bool AQuidditchPlayerController::CanAssignToLeftHand(UPrimitiveComponent* currentComponent) const
 {
 	return CanAssignToHand(currentComponent, leftHand, leftHandTag);
 }
 
-bool AQuidditchPlayerController::CanAssignToHand(UPrimitiveComponent* currentComponent, UActorComponent* hand, FName handTag)
+bool AQuidditchPlayerController::CanAssignToHand(UPrimitiveComponent* currentComponent, UActorComponent* hand, FName handTag) const
 {
 	return hand == nullptr && currentComponent->ComponentHasTag(handTag);
 }
 
-bool AQuidditchPlayerController::CanAssignToRightHand(UPrimitiveComponent* currentComponent)
+bool AQuidditchPlayerController::CanAssignToRightHand(UPrimitiveComponent* currentComponent) const
 {
 	return CanAssignToHand(currentComponent, rightHand, rightHandTag);
 }
@@ -73,12 +74,17 @@ void AQuidditchPlayerController::Tick(float DeltaSeconds)
 
 void AQuidditchPlayerController::UpdateRotation(const float DELTA_SECONDS)
 {
-	FRotator playerRotation = GetPawn()->GetActorRotation();
-	USceneComponent* scneComponent = Cast<USceneComponent>(leftHand);
-	FRotator targetRotation = scneComponent->GetComponentRotation();
+	const FRotator playerRotation = GetPawn()->GetActorRotation();
+	const FRotator targetRotation = GetLeftHandRotation();
 	const float INTERP_SPEED = 0.5f;
-	FRotator newRotation = UKismetMathLibrary::RInterpTo(playerRotation, targetRotation, DELTA_SECONDS, INTERP_SPEED);
+	const FRotator newRotation = UKismetMathLibrary::RInterpTo(playerRotation, targetRotation, DELTA_SECONDS, INTERP_SPEED);
 	GetPawn()->SetActorRotation(newRotation);
+}
+
+FRotator AQuidditchPlayerController::GetLeftHandRotation() const
+{
+	USceneComponent* sceneComponent = Cast<USceneComponent>(leftHand);
+	return sceneComponent->GetComponentRotation();
 }
 
 void AQuidditchPlayerController::SetupInputComponent()
@@ -100,29 +106,28 @@ void AQuidditchPlayerController::MoveForward(float value)
 
 void AQuidditchPlayerController::Grab()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("TRY TO GRAB"));
 	GetOverlappedActor();
 	if (attachableObject)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("ATTACH"));
 		attachableObject->Attach(rightHand);
 	}
-
 }
 
 void AQuidditchPlayerController::Ungrab()
 {
 	if (attachableObject)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Green, TEXT("DETACH"));
 		attachableObject->Detach();
+		attachableObject = nullptr;
 	}
 }
 
 void AQuidditchPlayerController::GetOverlappedActor()
 {
 	TArray<AActor*> overlappedActors;
-	rightHand->GetOverlappingActors(overlappedActors);
+
+	UPrimitiveComponent* trigger = GetRightHandTrigger();
+	trigger->GetOverlappingActors(overlappedActors);
 
 	for (AActor* actor : overlappedActors)
 	{
@@ -133,5 +138,11 @@ void AQuidditchPlayerController::GetOverlappedActor()
 			break;
 		}
 	}
+}
+
+UPrimitiveComponent* AQuidditchPlayerController::GetRightHandTrigger() const
+{
+	TArray<UActorComponent*> components = GetPawn()->GetComponentsByTag(UPrimitiveComponent::StaticClass(), rightHandTriggerTag);
+	return Cast<UPrimitiveComponent>(components[0]);
 }
 
