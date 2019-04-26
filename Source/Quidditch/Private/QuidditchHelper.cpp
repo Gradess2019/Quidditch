@@ -5,9 +5,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/PrimitiveComponent.h"
 
-FVector UQuidditchHelper::GetRandomVelocity(float speed)
+FVector UQuidditchHelper::GetRandomVelocity()
 {
-	return UKismetMathLibrary::RandomUnitVector() * speed;
+	return UKismetMathLibrary::RandomUnitVector();
 }
 
 FVector UQuidditchHelper::GetTargetVelocity(const FVector& currentVelocity, const float maxSpeed)
@@ -36,7 +36,7 @@ void UQuidditchHelper::CheckAndCorrectVelocity(FVector& velocity, const float ma
 {
 	if (velocity.IsZero())
 	{
-		velocity = GetRandomVelocity(maxSpeed);
+		velocity = GetRandomVelocity();
 	}
 }
 

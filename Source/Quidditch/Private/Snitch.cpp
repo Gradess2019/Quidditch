@@ -24,6 +24,6 @@ void ASnitch::RandomChangeVelocity(FVector& velocity)
 
 	if (chanceChangeDirection > randomChance)
 	{
-		velocity = UQuidditchHelper::GetRandomVelocity(maxSpeed);
+		velocity = UQuidditchHelper::GetRandomVelocity();
 	}
 }

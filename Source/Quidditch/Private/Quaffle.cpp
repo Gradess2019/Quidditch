@@ -23,11 +23,11 @@ FVector AQuaffle::GetNewVelocity()
 
 	if (currentVelocity.IsZero())
 	{
-		return UQuidditchHelper::GetRandomVelocity(maxSpeed);
+		return UQuidditchHelper::GetRandomVelocity();
 	}
 	else
 	{
-		const float INTERP_SPEED = 500.f;
+		const float INTERP_SPEED = 300.f;
 		return UQuidditchHelper::InterpolateToTargetVelocity(this, maxSpeed, INTERP_SPEED);
 	}
 }

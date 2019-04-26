@@ -17,7 +17,7 @@ class QUIDDITCH_API UQuidditchHelper : public UBlueprintFunctionLibrary
 public:
 
 	UFUNCTION(BlueprintCallable, Category = "Quidditch Helper")
-	static FVector GetRandomVelocity(float speed);
+	static FVector GetRandomVelocity();
 
 	UFUNCTION(BlueprintCallable, Category = "Quidditch Helper")
 	static FVector GetTargetVelocity(const FVector& currentVelocity, const float maxSpeed);
