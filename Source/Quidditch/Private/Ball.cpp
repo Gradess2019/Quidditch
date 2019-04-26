@@ -19,7 +19,7 @@ void ABall::BeginPlay()
 		FindFlightZone();
 	}
 
-	GetWorld()->GetTimerManager().SetTimer(moveUpdateTimer, this, &ABall::Move, 0.1f, true);
+	GetWorld()->GetTimerManager().SetTimer(movementUpdateTimer, this, &ABall::Move, 0.1f, true);
 }
 
 void ABall::FindPhysicalComponent()

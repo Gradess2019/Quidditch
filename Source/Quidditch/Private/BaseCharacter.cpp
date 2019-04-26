@@ -4,13 +4,15 @@
 
 ABaseCharacter::ABaseCharacter()
 {
-	speed = 100.f;
+	maxSpeed = 500.f;
 }
 
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	
 	FindMovementComponent();
+	InitFlyingSpeed();
 }
 
 void ABaseCharacter::FindMovementComponent()
@@ -21,6 +23,11 @@ void ABaseCharacter::FindMovementComponent()
 	{
 		this->movementComponent = Cast<UCharacterMovementComponent>(movementComponent);
 	}
+}
+
+void ABaseCharacter::InitFlyingSpeed()
+{
+	movementComponent->MaxFlySpeed = maxSpeed;
 }
 
 bool ABaseCharacter::CanBeAttacked() 
@@ -58,5 +65,15 @@ ETeamSide ABaseCharacter::GetTeam()
 
 float ABaseCharacter::GetSpeed()
 {
-	return speed;
+	return this->GetMovementComponent()->GetMaxSpeed();
+}
+
+FVector ABaseCharacter::GetDirection()
+{
+	return GetActorForwardVector();
+}
+
+void ABaseCharacter::AddInput(const FVector DIRECTION, const float VALUE)
+{
+	AddMovementInput(DIRECTION, VALUE);
 }
