@@ -1,9 +1,9 @@
 // Apache License. Copyright 2019 RTU IT Lab
 
 #include "QuidditchPlayerController.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "AttachableObject.h"
-#include "Kismet/KismetSystemLibrary.h"
 #include "Engine/Engine.h"
 
 void AQuidditchPlayerController::BeginPlay()
@@ -11,6 +11,7 @@ void AQuidditchPlayerController::BeginPlay()
 	Super::BeginPlay();
 	InitControlledPlayer();
 	InitMotionControllers();
+	InitChair();
 }
 
 void AQuidditchPlayerController::InitControlledPlayer()
@@ -66,6 +67,13 @@ bool AQuidditchPlayerController::CanAssignToRightHand(UPrimitiveComponent* curre
 	return CanAssignToHand(currentComponent, rightHand, rightHandTag);
 }
 
+void AQuidditchPlayerController::InitChair()
+{
+	bool connected = false;
+	chair = UChairControl::SerialPort(connected, 8, this);
+	chair->StartSending();
+}
+
 void AQuidditchPlayerController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
@@ -74,11 +82,31 @@ void AQuidditchPlayerController::Tick(float DeltaSeconds)
 
 void AQuidditchPlayerController::UpdateRotation(const float DELTA_SECONDS)
 {
-	const FRotator playerRotation = GetPawn()->GetActorRotation();
-	const FRotator targetRotation = GetLeftHandRotation();
+	const FRotator PLAYER_ROTATION = GetPawn()->GetActorRotation();
+	const FRotator TARGET_ROTATION = GetLeftHandRotation();
 	const float INTERP_SPEED = 0.5f;
-	const FRotator newRotation = UKismetMathLibrary::RInterpTo(playerRotation, targetRotation, DELTA_SECONDS, INTERP_SPEED);
-	GetPawn()->SetActorRotation(newRotation);
+	const FRotator NEW_ROTATION = UKismetMathLibrary::RInterpTo(PLAYER_ROTATION, TARGET_ROTATION, DELTA_SECONDS, INTERP_SPEED);
+	GetPawn()->SetActorRotation(NEW_ROTATION);
+
+	const FVector RIGHT_VECTOR = GetPawn()->GetActorRightVector();
+	const FVector FORWARD_VECTOR = GetPawn()->GetActorForwardVector();
+
+	const float RIGHT_DOT_RESULT = UKismetMathLibrary::Dot_VectorVector(RIGHT_VECTOR, FVector::UpVector);
+	const float RIGHT_COSINE = UKismetMathLibrary::DegAcos(RIGHT_DOT_RESULT) - 90.f;
+
+	const float FORWARD_DOT_RESULT = UKismetMathLibrary::Dot_VectorVector(FORWARD_VECTOR, FVector::UpVector);
+	const float FORWARD_COSINE = UKismetMathLibrary::DegAcos(FORWARD_DOT_RESULT) - 90.f;
+
+	const float SQRT_RESULT = UKismetMathLibrary::Sqrt(RIGHT_COSINE * RIGHT_COSINE + FORWARD_COSINE * FORWARD_COSINE);
+
+	const float CLAMP_RESULT = UKismetMathLibrary::FClamp(SQRT_RESULT, 0.f, 14.f);
+
+	const float ROLL = (RIGHT_COSINE / SQRT_RESULT) * CLAMP_RESULT * (-1.f);
+	const float PITCH = (FORWARD_COSINE / SQRT_RESULT) * CLAMP_RESULT * (-1.f);
+
+
+	chair->Control(ROLL, PITCH);
+
 }
 
 FRotator AQuidditchPlayerController::GetLeftHandRotation() const
