@@ -7,9 +7,6 @@
 #include "QuidditchHelper.h"
 #include "TimerManager.h"
 
-FVector GetFlightZoneOrigin(AActor* flightZone);
-FVector GetFlightZoneExtent(AActor* flightZone);
-
 void AQuaffle::Move()
 {
 	FVector newVelocity = GetNewVelocity();
@@ -17,7 +14,7 @@ void AQuaffle::Move()
 	SetVelocity(newVelocity);
 }
 
-FVector AQuaffle::GetNewVelocity()
+FVector AQuaffle::GetNewVelocity() const
 {
 	const FVector currentVelocity = this->GetVelocity();
 
@@ -34,56 +31,58 @@ FVector AQuaffle::GetNewVelocity()
 
 bool AQuaffle::CorrectDirection(FVector& velocity)
 {
-	const float PADDING = 100.f;
-
 	bool wasCorrected = false;
 
-	const FVector currentLocation = GetActorLocation();
-	const FVector flightZoneOrigin = GetFlightZoneOrigin(flightZone);
-	const FVector extent = GetFlightZoneExtent(flightZone);
-	const FVector deltaLocation = (flightZoneOrigin - currentLocation).GetAbs();
+	const FVector CURRENT_LOCATION = GetActorLocation();
+
+	FVector flightZoneOrigin = FVector::ZeroVector;
+	FVector flightZoneExtent = FVector::ZeroVector;
+
+	GetFlightZoneOriginAndExtent(flightZoneOrigin, flightZoneExtent);
+
+	const FVector CURRENT_DELTA_LOCATION = (flightZoneOrigin - CURRENT_LOCATION).GetAbs();
 
 
 	if (!lastDeltaLocation.IsZero())
 	{
-		if (extent.X < deltaLocation.X && deltaLocation.X > lastDeltaLocation.X)
+		if (IsMovingAway(flightZoneExtent.X, CURRENT_DELTA_LOCATION.X, lastDeltaLocation.X))
 		{
-			velocity.X *= -1;
+			NegateAxisValue(velocity.X);
 			wasCorrected = true;
 		}
 
-		if (extent.Y < deltaLocation.Y && deltaLocation.Y > lastDeltaLocation.Y)
+		if (IsMovingAway(flightZoneExtent.Y, CURRENT_DELTA_LOCATION.Y, lastDeltaLocation.Y))
 		{
-			velocity.Y *= -1;
+			NegateAxisValue(velocity.Y);
 			wasCorrected = true;
 		}
 
-		if (extent.Z < deltaLocation.Z && deltaLocation.Z > lastDeltaLocation.Z)
+		if (IsMovingAway(flightZoneExtent.Z, CURRENT_DELTA_LOCATION.Z, lastDeltaLocation.Z))
 		{
-			velocity.Z *= -1;
+			NegateAxisValue(velocity.Z);
 			wasCorrected = true;
 		}
 	}
 
-	lastDeltaLocation = deltaLocation;
+	lastDeltaLocation = CURRENT_DELTA_LOCATION;
 
 	return wasCorrected;
 }
 
-FVector GetFlightZoneOrigin(AActor* flightZone)
+
+void AQuaffle::GetFlightZoneOriginAndExtent(FVector& flightZoneOrigin, FVector& flightZoneExtent) const
 {
-	FVector flightZoneOrigin;
-	FVector zero = FVector::ZeroVector;
-	flightZone->GetActorBounds(false, flightZoneOrigin, zero);
-	return flightZoneOrigin;
+	flightZone->GetActorBounds(false, flightZoneOrigin, flightZoneExtent);
 }
 
-FVector GetFlightZoneExtent(AActor* flightZone)
+bool AQuaffle::IsMovingAway(const float EXTENT_VALUE, const float CURRENT_DELTA_VALUE, const float LAST_DELTA_VALUE) const
 {
-	FVector flightZoneExtent;
-	FVector zero = FVector::ZeroVector;
-	flightZone->GetActorBounds(false, zero, flightZoneExtent);
-	return flightZoneExtent;
+	return EXTENT_VALUE < CURRENT_DELTA_VALUE && CURRENT_DELTA_VALUE > LAST_DELTA_VALUE;
+}
+
+void AQuaffle::NegateAxisValue(float& axisValue) const
+{
+	axisValue *= -1;
 }
 
 void AQuaffle::SetVelocity(const FVector& velocity) const
@@ -102,7 +101,10 @@ void AQuaffle::Detach()
 {
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	physicalComponent->SetSimulatePhysics(true);
-	GetWorld()->GetTimerManager().SetTimer(continueMovementTimer, this, &AQuaffle::ContinueMovement, 5.f, false);
+
+	const float DELAY = 5.f;
+	const bool IS_LOOP = false;
+	GetWorld()->GetTimerManager().SetTimer(continueMovementTimer, this, &AQuaffle::ContinueMovement, DELAY, IS_LOOP);
 }
 
 void AQuaffle::ContinueMovement() const

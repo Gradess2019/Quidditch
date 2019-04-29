@@ -18,5 +18,5 @@ private:
 	float chanceChangeDirection;
 
 	void Move() override;
-	void RandomChangeVelocity(FVector& velocity);
+	void RandomChangeVelocity(FVector& velocity) const;
 };

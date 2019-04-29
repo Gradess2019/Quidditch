@@ -8,9 +8,9 @@ void ASnitch::Move()
 {
 	FVector newVelocity = GetNewVelocity();
 
-	bool wasCorrected = CorrectDirection(newVelocity);
+	const bool WAS_CORRECTED = CorrectDirection(newVelocity);
 
-	if (!wasCorrected)
+	if (!WAS_CORRECTED)
 	{
 		RandomChangeVelocity(newVelocity);
 	}
@@ -18,12 +18,12 @@ void ASnitch::Move()
 	SetVelocity(newVelocity);
 }
 
-void ASnitch::RandomChangeVelocity(FVector& velocity)
+void ASnitch::RandomChangeVelocity(FVector& velocity) const
 {
-	float randomChance = UKismetMathLibrary::RandomFloatInRange(0.f, 100.f);
+	const float RANDOM_CHANCE = UKismetMathLibrary::RandomFloatInRange(0.f, 100.f);
 
-	if (chanceChangeDirection > randomChance)
+	if (chanceChangeDirection > RANDOM_CHANCE)
 	{
-		velocity = UQuidditchHelper::GetRandomVelocity();
+		velocity = UQuidditchHelper::GetRandomVelocity() * maxSpeed;
 	}
 }

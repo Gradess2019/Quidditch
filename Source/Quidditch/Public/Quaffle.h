@@ -19,11 +19,11 @@ class QUIDDITCH_API AQuaffle : public ABall, public IAttachableObject, public IG
 
 public:
 
-	virtual void Attach(USceneComponent* parentComponent) override;
-	virtual void Detach() override;
+	void Attach(USceneComponent* parentComponent) override;
+	void Detach() override;
 
-	virtual int GetPoints() override;
-	virtual bool ShouldFinishGame() override;
+	int GetPoints() override;
+	bool ShouldFinishGame() override;
 
 protected:
 
@@ -39,9 +39,12 @@ protected:
 
 	void Move() override;
 	
-	FVector GetNewVelocity();
+	FVector GetNewVelocity() const;
+	void NegateAxisValue(float& axisValue) const;
+	bool IsMovingAway(const float EXTENT_VALUE, const float CURRENT_DELTA_VALUE, const float LAST_DELTA_VALUE) const;
 
 	bool CorrectDirection(FVector& velocity);
+	void GetFlightZoneOriginAndExtent(FVector& flightZoneOrigin, FVector& flightZoneExtent) const;
 
 	void SetVelocity(const FVector& velocity) const;
 
