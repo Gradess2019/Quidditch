@@ -82,6 +82,7 @@ void AQuidditchPlayerController::Tick(float DeltaSeconds)
 
 void AQuidditchPlayerController::UpdateRotation(const float DELTA_SECONDS)
 {
+	// Быдлокод
 	const FRotator PLAYER_ROTATION = GetPawn()->GetActorRotation();
 	const FRotator TARGET_ROTATION = GetLeftHandRotation();
 	const float INTERP_SPEED = 0.5f;
@@ -113,6 +114,11 @@ FRotator AQuidditchPlayerController::GetLeftHandRotation() const
 {
 	USceneComponent* sceneComponent = Cast<USceneComponent>(leftHand);
 	return sceneComponent->GetComponentRotation();
+}
+
+void AQuidditchPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	chair->ClosePort();
 }
 
 void AQuidditchPlayerController::SetupInputComponent()

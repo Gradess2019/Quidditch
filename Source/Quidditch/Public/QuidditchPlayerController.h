@@ -43,6 +43,8 @@ private:
 
 	void BeginPlay() override;
 	void Tick(float DeltaSeconds) override;
+	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 	FRotator GetLeftHandRotation() const;
 
 	void InitControlledPlayer();
