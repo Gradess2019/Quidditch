@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(ChairLog, Warning, All);
+
 UENUM(BlueprintType)
 enum class ETeamSide : uint8
 {

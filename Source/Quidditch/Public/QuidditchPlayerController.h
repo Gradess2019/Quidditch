@@ -8,6 +8,7 @@
 #include "BaseController.h"
 #include "MotionControllerComponent.h"
 #include "AttachableObject.h"
+#include "ChairControl.h"
 #include "QuidditchPlayerController.generated.h"
 
 /**
@@ -38,12 +39,17 @@ private:
 
 	IAttachableObject* attachableObject;
 
+	UChairControl* chair;
+
 	void BeginPlay() override;
 	void Tick(float DeltaSeconds) override;
+	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 	FRotator GetLeftHandRotation() const;
 
 	void InitControlledPlayer();
 	void InitMotionControllers();
+	void InitChair();
 
 	bool HasAnyMotionController() const;
 
